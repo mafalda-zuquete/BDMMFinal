@@ -191,11 +191,18 @@ def ex2_cpv_treemap(bot_year=2008, top_year=2020, country_list=countries):
             'from':'cpv',
             'localField':'CPV_DIVISION',
             'foreignField':'cpv_division',
-            'as':'cpv'
+            'as':'CPV'
         }
     }
 
-    pipeline = [match, project, group_cpv_count, lookup]
+    project_2 = {
+        '$project':{
+            'cpv':'$CPV.cpv_division_description',
+            'count':'$COUNT'
+        }
+    }
+
+    pipeline = [match, project, group_cpv_count, lookup, project_2]
 
     list_documents = list(eu.aggregate(pipeline))
 
@@ -215,9 +222,57 @@ def ex3_cpv_bar_1(bot_year=2008, top_year=2020, country_list=countries):
     value_2 = average 'VALUE_EURO' of each CPV Division, (float)
     """
 
-    pipeline = []
+    match = {
+        '$match': {
+                '$and': [{'YEAR': {'$gte': bot_year}}, {'YEAR': {'$lte': top_year}}],
+                'ISO_COUNTRY_CODE': {'$in': country_list}
+            }
+    }
 
-    list_documents = []
+    project = {
+        '$project':{
+            '_id':False,
+            'CPV_DIVISION':{'$substr':['$CPV',0,2]},
+            'VALUE_EURO':True
+        }
+    }
+
+    group_cpv_euro_avg = {
+        '$group':{
+            '_id':'$CPV_DIVISION',
+            'AVERAGE_VALUE':{'$avg':'$VALUE_EURO'}
+        }
+    }
+
+    sort = {
+        '$sort':{
+            'AVERAGE_VALUE':-1
+        }
+    }
+
+    limit = {
+        '$limit':5
+    }
+
+    lookup = {
+        '$lookup':{
+            'from':'cpv',
+            'localField':'CPV_DIVISION',
+            'foreignField':'cpv_division',
+            'as':'CPV'
+        }
+    }
+
+    project_2 = {
+        '$project':{
+            'cpv':'$CPV.cpv_division_description',
+            'avg':'$AVERAGE_VALUE'
+        }
+    }
+
+    pipeline = [match,project,group_cpv_euro_avg,sort,limit,lookup,project_2]
+
+    list_documents = list(eu.aggregate(pipeline))
 
     return list_documents
 
@@ -235,9 +290,57 @@ def ex4_cpv_bar_2(bot_year=2008, top_year=2020, country_list=countries):
     value_2 = average 'VALUE_EURO' of each CPV Division, (float)
     """
 
-    pipeline = []
+    match = {
+        '$match': {
+                '$and': [{'YEAR': {'$gte': bot_year}}, {'YEAR': {'$lte': top_year}}],
+                'ISO_COUNTRY_CODE': {'$in': country_list}
+            }
+    }
 
-    list_documents = []
+    project = {
+        '$project':{
+            '_id':False,
+            'CPV_DIVISION':{'$substr':['$CPV',0,2]},
+            'VALUE_EURO':True
+        }
+    }
+
+    group_cpv_euro_avg = {
+        '$group':{
+            '_id':'$CPV_DIVISION',
+            'AVERAGE_VALUE':{'$avg':'$VALUE_EURO'}
+        }
+    }
+
+    sort = {
+        '$sort':{
+            'AVERAGE_VALUE':1
+        }
+    }
+
+    limit = {
+        '$limit':5
+    }
+
+    lookup = {
+        '$lookup':{
+            'from':'cpv',
+            'localField':'CPV_DIVISION',
+            'foreignField':'cpv_division',
+            'as':'CPV'
+        }
+    }
+
+    project_2 = {
+        '$project':{
+            'cpv':'$CPV.cpv_division_description',
+            'avg':'$AVERAGE_VALUE'
+        }
+    }
+
+    pipeline = [match,project,group_cpv_euro_avg,sort,limit,lookup,project_2]
+
+    list_documents = list(eu.aggregate(pipeline))
 
     return list_documents
 
@@ -255,9 +358,58 @@ def ex5_cpv_bar_3(bot_year=2008, top_year=2020, country_list=countries):
     value_2 = average 'VALUE_EURO' of each CPV Division, (float)
     """
 
-    pipeline = []
+    match = {
+        '$match': {
+                '$and': [{'YEAR': {'$gte': bot_year}}, {'YEAR': {'$lte': top_year}}],
+                'ISO_COUNTRY_CODE': {'$in': country_list},
+                'B_EU_FUNDS':'Y'
+            }
+    }
 
-    list_documents = []
+    project = {
+        '$project':{
+            '_id':False,
+            'CPV_DIVISION':{'$substr':['$CPV',0,2]},
+            'VALUE_EURO':True
+        }
+    }
+
+    group_cpv_euro_avg = {
+        '$group':{
+            '_id':'$CPV_DIVISION',
+            'AVERAGE_VALUE':{'$avg':'$VALUE_EURO'}
+        }
+    }
+
+    sort = {
+        '$sort':{
+            'AVERAGE_VALUE':-1
+        }
+    }
+
+    limit = {
+        '$limit':5
+    }
+
+    lookup = {
+        '$lookup':{
+            'from':'cpv',
+            'localField':'CPV_DIVISION',
+            'foreignField':'cpv_division',
+            'as':'CPV'
+        }
+    }
+
+    project_2 = {
+        '$project':{
+            'cpv':'$CPV.cpv_division_description',
+            'avg':'$AVERAGE_VALUE'
+        }
+    }
+
+    pipeline = [match,project,group_cpv_euro_avg,sort,limit,lookup,project_2]
+
+    list_documents = list(eu.aggregate(pipeline))
 
     return list_documents
 
@@ -274,11 +426,59 @@ def ex6_cpv_bar_4(bot_year=2008, top_year=2020, country_list=countries):
     value_1 = CPV Division description, (string) (located in cpv collection as 'cpv_division_description')
     value_2 = average 'VALUE_EURO' of each CPV Division, (float)
     """
+    
+    match = {
+        '$match': {
+                '$and': [{'YEAR': {'$gte': bot_year}}, {'YEAR': {'$lte': top_year}}],
+                'ISO_COUNTRY_CODE': {'$in': country_list},
+                'B_EU_FUNDS':'N'
+            }
+    }
 
+    project = {
+        '$project':{
+            '_id':False,
+            'CPV_DIVISION':{'$substr':['$CPV',0,2]},
+            'VALUE_EURO':True
+        }
+    }
 
-    pipeline = []
+    group_cpv_euro_avg = {
+        '$group':{
+            '_id':'$CPV_DIVISION',
+            'AVERAGE_VALUE':{'$avg':'$VALUE_EURO'}
+        }
+    }
 
-    list_documents = []
+    sort = {
+        '$sort':{
+            'AVERAGE_VALUE':-1
+        }
+    }
+
+    limit = {
+        '$limit':5
+    }
+
+    lookup = {
+        '$lookup':{
+            'from':'cpv',
+            'localField':'CPV_DIVISION',
+            'foreignField':'cpv_division',
+            'as':'CPV'
+        }
+    }
+
+    project_2 = {
+        '$project':{
+            'cpv':'$CPV.cpv_division_description',
+            'avg':'$AVERAGE_VALUE'
+        }
+    }
+
+    pipeline = [match,project,group_cpv_euro_avg,sort,limit,lookup,project_2]
+
+    list_documents = list(eu.aggregate(pipeline))
 
     return list_documents
 
@@ -298,9 +498,58 @@ def ex7_cpv_map(bot_year=2008, top_year=2020, country_list=countries):
     value_3 = country in ISO-A2 format (string) (located in iso_codes collection)
     """
 
-    pipeline = []
+    match = {
+        '$match': {
+                '$and': [{'YEAR': {'$gte': bot_year}}, {'YEAR': {'$lte': top_year}}],
+                'ISO_COUNTRY_CODE': {'$in': country_list}
+            }
+    }
 
-    list_documents = []
+    project = {
+        '$project':{
+            '_id':False,
+            'CPV_DIVISION':{'$substr':['$CPV',0,2]},
+            'VALUE_EURO':True,
+            'ISO_COUNTRY_CODE':True
+        }
+    }
+
+    group_cpv_euro_avg = {
+        '$group':{
+            '_id':{'CPV_DIVISION':'$CPV_DIVISION','COUNTRY':'$COUNTRY'},
+            'AVERAGE_VALUE':{'$avg':'$VALUE_EURO'}
+        }
+    }
+
+    sort = {
+        '$sort':{
+            'AVERAGE_VALUE':-1
+        }
+    }
+
+    limit = {
+        '$limit':5
+    }
+
+    lookup = {
+        '$lookup':{
+            'from':'cpv',
+            'localField':'CPV_DIVISION',
+            'foreignField':'cpv_division',
+            'as':'CPV'
+        }
+    }
+
+    project_2 = {
+        '$project':{
+            'cpv':'$CPV.cpv_division_description',
+            'avg':'$AVERAGE_VALUE'
+        }
+    }
+
+    pipeline = [match,project,group_cpv_euro_avg,sort,limit,lookup,project_2]
+
+    list_documents = list(eu.aggregate(pipeline))
 
     return list_documents
 
