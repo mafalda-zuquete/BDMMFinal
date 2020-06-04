@@ -11,7 +11,7 @@ countries = ['NO', 'HR', 'HU', 'CH', 'CZ', 'RO', 'LV', 'GR', 'UK', 'SI', 'LT',
 
 def ex0_cpv_example(bot_year=2008, top_year=2020):
     """
-    Returns all contracts in given year 'YEAR' range and cap to 100000000 the 'EURO_VALUE'
+    Returns all contracts in given year 'YEAR' range and cap to 100000000 the 'VALUE_EURO'
 
     Expected Output (list of documents):
     [{'result': count_value(int)}]
@@ -46,11 +46,11 @@ def ex1_cpv_box(bot_year=2008, top_year=2020, country_list=countries):
     (avg_cpv_euro_avg, avg_cpv_count, avg_cpv_offer_avg, avg_cpv_euro_avg_y_eu, avg_cpv_euro_avg_n_eu)
 
     Where:
-    avg_cpv_euro_avg = average value of each CPV's division contracts average 'EURO_VALUE', (int)
+    avg_cpv_euro_avg = average value of each CPV's division contracts average 'VALUE_EURO', (int)
     avg_cpv_count = average value of each CPV's division contract count, (int)
     avg_cpv_offer_avg = average value of each CPV's division contracts average NUMBER_OFFERS', (int)
-    avg_cpv_euro_avg_y_eu = average value of each CPV's division contracts average EURO_VALUE' with 'B_EU_FUNDS', (int)
-    avg_cpv_euro_avg_n_eu = average value of each CPV's division contracts average 'EURO_VALUE' with out 'B_EU_FUNDS' (int)
+    avg_cpv_euro_avg_y_eu = average value of each CPV's division contracts average VALUE_EURO' with 'B_EU_FUNDS', (int)
+    avg_cpv_euro_avg_n_eu = average value of each CPV's division contracts average 'VALUE_EURO' with out 'B_EU_FUNDS' (int)
     """
 
     avg_cpv_euro_avg = None
@@ -84,7 +84,7 @@ def ex2_cpv_treemap(bot_year=2008, top_year=2020, country_list=countries):
 
 def ex3_cpv_bar_1(bot_year=2008, top_year=2020, country_list=countries):
     """
-    Per CPV Division and get the average 'EURO_VALUE' return the highest 5 cpvs
+    Per CPV Division and get the average 'VALUE_EURO' return the highest 5 cpvs
     Result filterable by floor year, roof year and country_list
 
     Expected Output (list of 5 sorted documents):
@@ -92,7 +92,7 @@ def ex3_cpv_bar_1(bot_year=2008, top_year=2020, country_list=countries):
 
     Where:
     value_1 = CPV Division description, (string) (located in cpv collection as 'cpv_division_description')
-    value_2 = average 'EURO_VALUE' of each CPV Division, (float)
+    value_2 = average 'VALUE_EURO' of each CPV Division, (float)
     """
 
     pipeline = []
@@ -104,7 +104,7 @@ def ex3_cpv_bar_1(bot_year=2008, top_year=2020, country_list=countries):
 
 def ex4_cpv_bar_2(bot_year=2008, top_year=2020, country_list=countries):
     """
-    Per CPV Division and get the average 'EURO_VALUE' return the lowest 5 cpvs
+    Per CPV Division and get the average 'VALUE_EURO' return the lowest 5 cpvs
     Result filterable by floor year, roof year and country_list
 
     Expected Output (list of 5 sorted documents):
@@ -112,7 +112,7 @@ def ex4_cpv_bar_2(bot_year=2008, top_year=2020, country_list=countries):
 
     Where:
     value_1 = CPV Division description, (string) (located in cpv collection as 'cpv_division_description')
-    value_2 = average 'EURO_VALUE' of each CPV Division, (float)
+    value_2 = average 'VALUE_EURO' of each CPV Division, (float)
     """
 
     pipeline = []
@@ -124,7 +124,7 @@ def ex4_cpv_bar_2(bot_year=2008, top_year=2020, country_list=countries):
 
 def ex5_cpv_bar_3(bot_year=2008, top_year=2020, country_list=countries):
     """
-    Per CPV Division and get the average 'EURO_VALUE' return the highest 5 cpvs for contracts which recieved european funds ('B_EU_FUNDS') 
+    Per CPV Division and get the average 'VALUE_EURO' return the highest 5 cpvs for contracts which recieved european funds ('B_EU_FUNDS') 
     Result filterable by floor year, roof year and country_list
 
     Expected Output (list of 5 sorted documents):
@@ -132,7 +132,7 @@ def ex5_cpv_bar_3(bot_year=2008, top_year=2020, country_list=countries):
 
     Where:
     value_1 = CPV Division description, (string) (located in cpv collection as 'cpv_division_description')
-    value_2 = average 'EURO_VALUE' of each CPV Division, (float)
+    value_2 = average 'VALUE_EURO' of each CPV Division, (float)
     """
 
     pipeline = []
@@ -144,7 +144,7 @@ def ex5_cpv_bar_3(bot_year=2008, top_year=2020, country_list=countries):
 
 def ex6_cpv_bar_4(bot_year=2008, top_year=2020, country_list=countries):
     """
-    Per CPV Division and get the average 'EURO_VALUE' return the highest 5 cpvs for contracts which did not recieve european funds ('B_EU_FUNDS') 
+    Per CPV Division and get the average 'VALUE_EURO' return the highest 5 cpvs for contracts which did not recieve european funds ('B_EU_FUNDS') 
     Result filterable by floor year, roof year and country_list
 
     Expected Output (list of 5 sorted documents):
@@ -152,7 +152,7 @@ def ex6_cpv_bar_4(bot_year=2008, top_year=2020, country_list=countries):
 
     Where:
     value_1 = CPV Division description, (string) (located in cpv collection as 'cpv_division_description')
-    value_2 = average 'EURO_VALUE' of each CPV Division, (float)
+    value_2 = average 'VALUE_EURO' of each CPV Division, (float)
     """
 
 
@@ -165,7 +165,7 @@ def ex6_cpv_bar_4(bot_year=2008, top_year=2020, country_list=countries):
 
 def ex7_cpv_map(bot_year=2008, top_year=2020, country_list=countries):
     """
-    Returns the highest CPV Division on average 'EURO_VALUE' per country 'ISO_COUNTRY_CODE'
+    Returns the highest CPV Division on average 'VALUE_EURO' per country 'ISO_COUNTRY_CODE'
 
     Result filterable by floor year, roof year and country_list
 
@@ -174,7 +174,7 @@ def ex7_cpv_map(bot_year=2008, top_year=2020, country_list=countries):
 
     Where:
     value_1 = CPV Division description, (string) (located in cpv collection as 'cpv_division_description')
-    value_2 = highest CPV Division average 'EURO_VALUE' of country, (float)
+    value_2 = highest CPV Division average 'VALUE_EURO' of country, (float)
     value_3 = country in ISO-A2 format (string) (located in iso_codes collection)
     """
 
@@ -188,7 +188,7 @@ def ex7_cpv_map(bot_year=2008, top_year=2020, country_list=countries):
 def ex8_cpv_hist(bot_year=2008, top_year=2020, country_list=countries, cpv='50'):
     """
     Produce an histogram where each bucket has the contract counts of a particular cpv
-     in a given range of values (bucket) according to 'EURO_VALUE'
+     in a given range of values (bucket) according to 'VALUE_EURO'
 
      Choose 10 buckets of any partition
     Buckets Example:
@@ -229,7 +229,7 @@ def ex9_cpv_bar_diff(bot_year=2008, top_year=2020, country_list=countries):
     Returns the average time and value difference for each CPV, return the highest 5 cpvs
 
     time difference = 'DT-DISPATCH' - 'DT-AWARD'
-    value difference = 'AWARD_VALUE_EURO' - 'EURO_VALUE'
+    value difference = 'AWARD_VALUE_EURO' - 'VALUE_EURO'
 
     Result filterable by floor year, roof year and country_list
 
@@ -239,7 +239,7 @@ def ex9_cpv_bar_diff(bot_year=2008, top_year=2020, country_list=countries):
     Where:
     value_1 = CPV Division description, (string) (located in cpv collection as 'cpv_division_description')
     value_2 = average 'DT-DISPACH' - 'DT-AWARD', (float)
-    value_3 = average 'EURO_AWARD' - 'EURO_VALUE' (float)
+    value_3 = average 'EURO_AWARD' - 'VALUE_EURO' (float)
     """
 
     pipeline = []
@@ -258,11 +258,11 @@ def ex10_country_box(bot_year=2008, top_year=2020, country_list=countries):
     (avg_country_euro_avg, avg_country_count, avg_country_offer_avg, avg_country_euro_avg_y_eu, avg_country_euro_avg_n_eu)
 
     Where:
-    avg_country_euro_avg = average value of each countries ('ISO_COUNTRY_CODE') contracts average 'EURO_VALUE', (int)
+    avg_country_euro_avg = average value of each countries ('ISO_COUNTRY_CODE') contracts average 'VALUE_EURO', (int)
     avg_country_count = average value of each countries ('ISO_COUNTRY_CODE') contract count, (int)
     avg_country_offer_avg = average value of each countries ('ISO_COUNTRY_CODE') contracts average NUMBER_OFFERS', (int)
-    avg_country_euro_avg_y_eu = average value of each countries ('ISO_COUNTRY_CODE') contracts average EURO_VALUE' with 'B_EU_FUNDS', (int)
-    avg_country_euro_avg_n_eu = average value of each countries ('ISO_COUNTRY_CODE') contracts average 'EURO_VALUE' with out 'B_EU_FUNDS' (int)
+    avg_country_euro_avg_y_eu = average value of each countries ('ISO_COUNTRY_CODE') contracts average VALUE_EURO' with 'B_EU_FUNDS', (int)
+    avg_country_euro_avg_n_eu = average value of each countries ('ISO_COUNTRY_CODE') contracts average 'VALUE_EURO' with out 'B_EU_FUNDS' (int)
     """
 
     avg_country_euro_avg = None
@@ -296,7 +296,7 @@ def ex11_country_treemap(bot_year=2008, top_year=2020, country_list=countries):
 
 def ex12_country_bar_1(bot_year=2008, top_year=2020, country_list=countries):
     """
-    Returns the average 'EURO_VALUE' for each country, return the highest 5 countries
+    Returns the average 'VALUE_EURO' for each country, return the highest 5 countries
 
     Result filterable by floor year, roof year and country_list
 
@@ -305,7 +305,7 @@ def ex12_country_bar_1(bot_year=2008, top_year=2020, country_list=countries):
 
     Where:
     value_1 = Country ('ISO_COUNTRY_CODE') name, (string) (located in cpv collection as 'cpv_division_description')
-    value_2 = average 'EURO_VALUE' of each country ('ISO_COUNTRY_CODE') name, (float)
+    value_2 = average 'VALUE_EURO' of each country ('ISO_COUNTRY_CODE') name, (float)
     """
 
     pipeline = []
@@ -317,7 +317,7 @@ def ex12_country_bar_1(bot_year=2008, top_year=2020, country_list=countries):
 
 def ex13_country_bar_2(bot_year=2008, top_year=2020, country_list=countries):
     """
-    Group by country and get the average 'EURO_VALUE' for each group, return the lowest, average wise, 5 documents
+    Group by country and get the average 'VALUE_EURO' for each group, return the lowest, average wise, 5 documents
 
     Result filterable by floor year, roof year and country_list
 
@@ -326,7 +326,7 @@ def ex13_country_bar_2(bot_year=2008, top_year=2020, country_list=countries):
 
     Where:
     value_1 = Country ('ISO_COUNTRY_CODE') name, (string) (located in cpv collection as 'cpv_division_description')
-    value_2 = average 'EURO_VALUE' of each country ('ISO_COUNTRY_CODE') name, (float)
+    value_2 = average 'VALUE_EURO' of each country ('ISO_COUNTRY_CODE') name, (float)
     """
 
     pipeline = []
@@ -338,7 +338,7 @@ def ex13_country_bar_2(bot_year=2008, top_year=2020, country_list=countries):
 
 def ex14_country_map(bot_year=2008, top_year=2020, country_list=countries):
     """
-    For each country get the sum of thr«e respective contracts 'EURO_VALUE'
+    For each country get the sum of the respective contracts 'VALUE_EURO' with 'B_EU_FUNDS'
 
     Result filterable by floor year, roof year and country_list
 
@@ -346,7 +346,7 @@ def ex14_country_map(bot_year=2008, top_year=2020, country_list=countries):
     [{sum: value_1, country: value_2}, ....]
 
     Where:
-    value_1 = sum 'EURO_VALUE' of country ('ISO_COUNTRY_CODE') name, (float)
+    value_1 = sum 'VALUE_EURO' of country ('ISO_COUNTRY_CODE') name, (float)
     value_2 = country in ISO-A2 format (string) (located in iso_codes collection)
     """
 
@@ -367,11 +367,11 @@ def ex15_business_box(bot_year=2008, top_year=2020, country_list=countries):
     (avg_business_euro_avg, avg_business_count, avg_business_offer_avg, avg_business_euro_avg_y_eu, avg_business_euro_avg_n_eu)
 
     Where:
-    avg_business_euro_avg = average value of each company ('CAE_NAME')  contracts average 'EURO_VALUE', (int)
+    avg_business_euro_avg = average value of each company ('CAE_NAME')  contracts average 'VALUE_EURO', (int)
     avg_business_count = average value of each company ('CAE_NAME') contract count, (int)
     avg_business_offer_avg = average value of each company ('CAE_NAME') contracts average NUMBER_OFFERS', (int)
-    avg_business_euro_avg_y_eu = average value of each company ('CAE_NAME') contracts average EURO_VALUE' with 'B_EU_FUNDS', (int)
-    avg_business_euro_avg_n_eu = average value of each company ('CAE_NAME') contracts average 'EURO_VALUE' with out 'B_EU_FUNDS' (int)
+    avg_business_euro_avg_y_eu = average value of each company ('CAE_NAME') contracts average VALUE_EURO' with 'B_EU_FUNDS', (int)
+    avg_business_euro_avg_n_eu = average value of each company ('CAE_NAME') contracts average 'VALUE_EURO' with out 'B_EU_FUNDS' (int)
     """
 
     avg_business_euro_avg = None
@@ -385,7 +385,7 @@ def ex15_business_box(bot_year=2008, top_year=2020, country_list=countries):
 
 def ex16_business_bar_1(bot_year=2008, top_year=2020, country_list=countries):
     """
-    Returns the average 'EURO_VALUE' for company ('CAE_NAME') return the highest 5 companies
+    Returns the average 'VALUE_EURO' for company ('CAE_NAME') return the highest 5 companies
     Result filterable by floor year, roof year and country_list
 
     Expected Output (list of 5 sorted documents):
@@ -393,7 +393,7 @@ def ex16_business_bar_1(bot_year=2008, top_year=2020, country_list=countries):
 
     Where:
     value_1 = company ('CAE_NAME') name, (string)
-    value_2 = average 'EURO_VALUE' of each company ('CAE_NAME'), (float)
+    value_2 = average 'VALUE_EURO' of each company ('CAE_NAME'), (float)
     """
 
     list_documents = ex3_cpv_bar_1(bot_year=2008, top_year=2020, country_list=countries)
@@ -403,7 +403,7 @@ def ex16_business_bar_1(bot_year=2008, top_year=2020, country_list=countries):
 
 def ex17_business_bar_2(bot_year=2008, top_year=2020, country_list=countries):
     """
-    Returns the average 'EURO_VALUE' for company ('CAE_NAME') return the lowest 5 companies
+    Returns the average 'VALUE_EURO' for company ('CAE_NAME') return the lowest 5 companies
 
 
     Result filterable by floor year, roof year and country_list
@@ -413,7 +413,7 @@ def ex17_business_bar_2(bot_year=2008, top_year=2020, country_list=countries):
 
     Where:
     value_1 = company ('CAE_NAME') name, (string)
-    value_2 = average 'EURO_VALUE' of each company ('CAE_NAME'), (float)
+    value_2 = average 'VALUE_EURO' of each company ('CAE_NAME'), (float)
     """
 
     pipeline = []
@@ -425,7 +425,7 @@ def ex17_business_bar_2(bot_year=2008, top_year=2020, country_list=countries):
 
 def ex18_business_treemap(bot_year=2008, top_year=2020, country_list=countries):
     """
-    We want the count of contracts for each company 'CAE_CODE', for the highest 15
+    We want the count of contracts for each company 'CAE_NAME', for the highest 15
     Result filterable by floor year, roof year and country_list
 
     Expected Output (list of documents):
@@ -445,7 +445,7 @@ def ex18_business_treemap(bot_year=2008, top_year=2020, country_list=countries):
 
 def ex19_business_map(bot_year=2008, top_year=2020, country_list=countries):
     """
-    For each country get the highest sum, in terms of 'EURO_VALUE', company ('CAE_NAME')
+    For each country get the highest company ('CAE_NAME') in terms of 'VALUE_EURO' sum contract spending
 
     Result filterable by floor year, roof year and country_list
 
@@ -454,7 +454,7 @@ def ex19_business_map(bot_year=2008, top_year=2020, country_list=countries):
 
     Where:
     value_1 = 'top' company of that particular country ('CAE_NAME'), (string)
-    value_2 = sum 'EURO_VALUE' of country and company ('CAE_NAME'), (float)
+    value_2 = sum 'VALUE_EURO' of country and company ('CAE_NAME'), (float)
     value_3 = country in ISO-A2 format (string) (located in iso_codes collection)
     value_4 = company ('CAE_NAME') address, single string merging 'CAE_ADDRESS' and 'CAE_TOWN' separated by ' ' (space)
     """
@@ -468,7 +468,7 @@ def ex19_business_map(bot_year=2008, top_year=2020, country_list=countries):
 
 def ex20_business_connection(bot_year=2008, top_year=2020, country_list=countries):
     """
-    We want the top 5 most co-occurring companies ('CAE_NAME' and 'WIN_NAME')
+    We want the top 5 most frequent co-occurring companies ('CAE_NAME' and 'WIN_NAME')
 
     Result filterable by floor year, roof year and country_list
 
