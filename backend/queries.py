@@ -53,11 +53,101 @@ def ex1_cpv_box(bot_year=2008, top_year=2020, country_list=countries):
     avg_cpv_euro_avg_n_eu = average value of each CPV's division contracts average 'VALUE_EURO' with out 'B_EU_FUNDS' (int)
     """
 
-    avg_cpv_euro_avg = None
-    avg_cpv_count = None
-    avg_cpv_offer_avg = None
-    avg_cpv_euro_avg_y_eu = None
-    avg_cpv_euro_avg_n_eu = None
+    match = {
+        '$match': {
+                '$and': [{'YEAR': {'$gte': bot_year}}, {'YEAR': {'$lte': top_year}}],
+                'ISO_COUNTRY_CODE': {'$in': country_list}
+            }
+    }
+
+    project = {
+        '$project':{
+            '_id':False,
+            'VALUE_EURO':True,
+            'NUMBER_OFFERS':True,
+            'CPV_DIVISION':{'$substr':['$CPV',0,2]}
+        }
+    }
+
+    group_cpv_euro_avg = {
+        '$group':{
+            '_id':'$CPV_DIVISION',
+            'AVERAGE_VALUE':{'$avg':'$VALUE_EURO'}
+        }
+    }
+
+    group_cpv_euro_avg_2 = {
+        '$group':{
+            '_id':None,
+            'AVERAGE_CPV_VALUE':{'$avg':'$AVERAGE_VALUE'}
+        }
+    }
+
+    pipeline_cpv_euro_avg = [match, project, group_cpv_euro_avg, group_cpv_euro_avg_2]
+
+    agg_cpv_euro_avg = list(eu.aggregate(pipeline_cpv_euro_avg))
+
+    group_cpv_count = {
+        '$group':{
+            '_id':'$CPV_DIVISION',
+            'COUNT':{'$sum':1}
+        }
+    }
+
+    group_cpv_count_2 = {
+        '$group':{
+            '_id':None,
+            'AVERAGE_COUNT':{'$avg':'$COUNT'}
+        }
+    }
+
+    pipeline_cpv_count = [match, project, group_cpv_count, group_cpv_count_2]
+
+    agg_cpv_count = list(eu.aggregate(pipeline_cpv_count))
+
+    group_cpv_offer_avg = {
+        '$group':{
+            '_id':'$CPV_DIVISION',
+            'AVERAGE_OFFERS':{'$avg':'NUMBER_OFFERS'}
+        }
+    }
+
+    group_cpv_offer_avg_2 = {
+        '$group':{
+            '_id':None,
+            'AVERAGE_CPV_OFFERS':{'$avg':'$AVERAGE_OFFERS'}
+        }
+    }
+
+    pipeline_cpv_offer_avg = [match, project, group_cpv_offer_avg, group_cpv_offer_avg_2]
+
+    agg_cpv_offer_avg = list(eu.aggregate(pipeline_cpv_offer_avg))
+
+    match_cpv_euro_avg_y_eu = {
+        '$match':{
+            'B_EU_FUNDS':'Y'
+        }
+    }
+
+    pipeline_cpv_euro_avg_y_eu = [match, match_cpv_euro_avg_y_eu, project, group_cpv_euro_avg, group_cpv_euro_avg_2]
+
+    agg_cpv_euro_avg_y_eu = list(eu.aggregate(pipeline_cpv_euro_avg_y_eu))
+
+    match_cpv_euro_avg_n_eu = {
+        '$match':{
+            'B_EU_FUNDS':'N'
+        }
+    }
+
+    pipeline_cpv_euro_avg_n_eu = [match, match_cpv_euro_avg_n_eu, project, group_cpv_euro_avg, group_cpv_euro_avg_2]
+
+    agg_cpv_euro_avg_n_eu = list(eu.aggregate(pipeline_cpv_euro_avg_n_eu))
+
+    avg_cpv_euro_avg = agg_cpv_euro_avg[0]['AVERAGE_CPV_VALUE']
+    avg_cpv_count = agg_cpv_count[0]['AVERAGE_COUNT']
+    avg_cpv_offer_avg = agg_cpv_offer_avg[0]['AVERAGE_CPV_OFFERS']
+    avg_cpv_euro_avg_y_eu = agg_cpv_euro_avg_y_eu[0]['AVERAGE_CPV_VALUE']
+    avg_cpv_euro_avg_n_eu = agg_cpv_euro_avg_n_eu[0]['AVERAGE_CPV_VALUE']
 
     return avg_cpv_euro_avg, avg_cpv_count, avg_cpv_offer_avg, avg_cpv_euro_avg_y_eu, avg_cpv_euro_avg_n_eu
 
@@ -75,9 +165,39 @@ def ex2_cpv_treemap(bot_year=2008, top_year=2020, country_list=countries):
     value_2 = contract count of each CPV Division, (int)
     """
 
-    pipeline = []
+    match = {
+        '$match': {
+                '$and': [{'YEAR': {'$gte': bot_year}}, {'YEAR': {'$lte': top_year}}],
+                'ISO_COUNTRY_CODE': {'$in': country_list}
+            }
+    }
 
-    list_documents = []
+    project = {
+        '$project':{
+            '_id':False,
+            'CPV_DIVISION':{'$substr':['$CPV',0,2]}
+        }
+    }
+
+    group_cpv_count = {
+        '$group':{
+            '_id':'$CPV_DIVISION',
+            'COUNT':{'$sum':1}
+        }
+    }
+
+    lookup = {
+        '$lookup':{
+            'from':'cpv',
+            'localField':'CPV_DIVISION',
+            'foreignField':'cpv_division',
+            'as':'cpv'
+        }
+    }
+
+    pipeline = [match, project, group_cpv_count, lookup]
+
+    list_documents = list(eu.aggregate(pipeline))
 
     return list_documents
 
