@@ -210,11 +210,9 @@ def ex2_cpv_treemap(bot_year=2008, top_year=2020, country_list=countries):
         }
     }
 
-    pipeline = [match, project, limit, group_cpv_count, lookup, project_2, project_3]
+    pipeline = [match, project, group_cpv_count, lookup, project_2, project_3]
 
     list_documents = list(eu.aggregate(pipeline))
-
-    #print(list_documents)
 
     return list_documents
 
@@ -234,9 +232,9 @@ def ex3_cpv_bar_1(bot_year=2008, top_year=2020, country_list=countries):
 
     match = {
         '$match': {
-                '$and': [{'YEAR': {'$gte': bot_year}}, {'YEAR': {'$lte': top_year}}],
-                'ISO_COUNTRY_CODE': {'$in': country_list}
-            }
+            '$and': [{'YEAR': {'$gte': bot_year}}, {'YEAR': {'$lte': top_year}}],
+            'ISO_COUNTRY_CODE': {'$in': country_list}
+        }
     }
 
     project = {
@@ -267,7 +265,7 @@ def ex3_cpv_bar_1(bot_year=2008, top_year=2020, country_list=countries):
     lookup = {
         '$lookup':{
             'from':'cpv',
-            'localField':'CPV_DIVISION',
+            'localField':'_id',
             'foreignField':'cpv_division',
             'as':'CPV'
         }
@@ -275,14 +273,22 @@ def ex3_cpv_bar_1(bot_year=2008, top_year=2020, country_list=countries):
 
     project_2 = {
         '$project':{
-            'cpv':'$CPV.cpv_division_description',
+            '_id':False,
+            'cpv':{ "$arrayElemAt": [ "$CPV", 0] },
             'avg':'$AVERAGE_VALUE'
         }
     }
 
-    #pipeline = [match,project,group_cpv_euro_avg,sort,limit,lookup,project_2]
+    project_3 = {
+        '$project':{
+            'cpv':'$cpv.cpv_division_description',
+            'avg':True
+        }
+    }
 
-    list_documents = []#list(eu.aggregate(pipeline))
+    pipeline = [match, project, group_cpv_euro_avg, sort, limit, lookup, project_2, project_3]
+
+    list_documents = list(eu.aggregate(pipeline))
 
     return list_documents
 
@@ -302,9 +308,9 @@ def ex4_cpv_bar_2(bot_year=2008, top_year=2020, country_list=countries):
 
     match = {
         '$match': {
-                '$and': [{'YEAR': {'$gte': bot_year}}, {'YEAR': {'$lte': top_year}}],
-                'ISO_COUNTRY_CODE': {'$in': country_list}
-            }
+            '$and': [{'YEAR': {'$gte': bot_year}}, {'YEAR': {'$lte': top_year}}],
+            'ISO_COUNTRY_CODE': {'$in': country_list}
+        }
     }
 
     project = {
@@ -335,7 +341,7 @@ def ex4_cpv_bar_2(bot_year=2008, top_year=2020, country_list=countries):
     lookup = {
         '$lookup':{
             'from':'cpv',
-            'localField':'CPV_DIVISION',
+            'localField':'_id',
             'foreignField':'cpv_division',
             'as':'CPV'
         }
@@ -343,14 +349,22 @@ def ex4_cpv_bar_2(bot_year=2008, top_year=2020, country_list=countries):
 
     project_2 = {
         '$project':{
-            'cpv':'$CPV.cpv_division_description',
+            '_id':False,
+            'cpv':{ "$arrayElemAt": [ "$CPV", 0] },
             'avg':'$AVERAGE_VALUE'
         }
     }
 
-    #pipeline = [match,project,group_cpv_euro_avg,sort,limit,lookup,project_2]
+    project_3 = {
+        '$project':{
+            'cpv':'$cpv.cpv_division_description',
+            'avg':True
+        }
+    }
 
-    list_documents = []#list(eu.aggregate(pipeline))
+    pipeline = [match, project, group_cpv_euro_avg, sort, limit, lookup, project_2, project_3]
+
+    list_documents = list(eu.aggregate(pipeline))
 
     return list_documents
 
@@ -404,7 +418,7 @@ def ex5_cpv_bar_3(bot_year=2008, top_year=2020, country_list=countries):
     lookup = {
         '$lookup':{
             'from':'cpv',
-            'localField':'CPV_DIVISION',
+            'localField':'_id',
             'foreignField':'cpv_division',
             'as':'CPV'
         }
@@ -412,14 +426,22 @@ def ex5_cpv_bar_3(bot_year=2008, top_year=2020, country_list=countries):
 
     project_2 = {
         '$project':{
-            'cpv':'$CPV.cpv_division_description',
+            '_id':False,
+            'cpv':{ "$arrayElemAt": [ "$CPV", 0] },
             'avg':'$AVERAGE_VALUE'
         }
     }
 
-    #pipeline = [match,project,group_cpv_euro_avg,sort,limit,lookup,project_2]
+    project_3 = {
+        '$project':{
+            'cpv':'$cpv.cpv_division_description',
+            'avg':True
+        }
+    }
 
-    list_documents = []#list(eu.aggregate(pipeline))
+    pipeline = [match, project, group_cpv_euro_avg, sort, limit, lookup, project_2, project_3]
+
+    list_documents = list(eu.aggregate(pipeline))
 
     return list_documents
 
