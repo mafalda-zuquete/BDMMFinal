@@ -549,47 +549,56 @@ def ex7_cpv_map(bot_year=2008, top_year=2020, country_list=countries):
         '$project':{
             '_id':False,
             'CPV_DIVISION':{'$substr':['$CPV',0,2]},
-            'VALUE_EURO':True,
-            'ISO_COUNTRY_CODE':True
+            'ISO_COUNTRY_CODE':True,
+            'VALUE_EURO':True
         }
     }
 
-    group_cpv_euro_avg = {
+    group_cpv_country_euro_avg = {
         '$group':{
-            '_id':{'CPV_DIVISION':'$CPV_DIVISION','COUNTRY':'$COUNTRY'},
+            '_id':{'CPV_DIVISION':'$CPV_DIVISION','COUNTRY':'$ISO_COUNTRY_CODE'},
             'AVERAGE_VALUE':{'$avg':'$VALUE_EURO'}
         }
     }
 
     sort = {
         '$sort':{
+            '_id.COUNTRY':1,
             'AVERAGE_VALUE':-1
         }
     }
 
-    limit = {
-        '$limit':5
-    }
-
-    lookup = {
-        '$lookup':{
-            'from':'cpv',
-            'localField':'CPV_DIVISION',
-            'foreignField':'cpv_division',
-            'as':'CPV'
+    group_2 = {
+        '$group':{
+            '_id': '$_id.COUNTRY',
+            'docs': {'$push': '$$ROOT'}
         }
     }
 
     project_2 = {
         '$project':{
-            'cpv':'$CPV.cpv_division_description',
-            'avg':'$AVERAGE_VALUE'
+            'top_1':{
+                '$slice':['$docs', 1]
+            }
         }
     }
 
-    #pipeline = [match,project,group_cpv_euro_avg,sort,limit,lookup,project_2]
+    unwind = {
+        '$unwind':'$top_1'
+    }
 
-    list_documents = []#list(eu.aggregate(pipeline))
+    project_3 = {
+        '$project':{
+            '_id':False,
+            'cpv':'$top_1._id.CPV_DIVISION',
+            'avg':'$top_1.AVERAGE_VALUE',
+            'country':'$_id'
+        }
+    }
+
+    pipeline = [match, project, group_cpv_country_euro_avg, sort, group_2, project_2, unwind, project_3]
+
+    list_documents = list(eu.aggregate(pipeline))
 
     return list_documents
 
