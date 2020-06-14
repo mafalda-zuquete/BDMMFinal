@@ -495,7 +495,7 @@ def ex6_cpv_bar_4(bot_year=2008, top_year=2020, country_list=countries):
     lookup = {
         '$lookup':{
             'from':'cpv',
-            'localField':'CPV_DIVISION',
+            'localField':'_id',
             'foreignField':'cpv_division',
             'as':'CPV'
         }
@@ -503,14 +503,22 @@ def ex6_cpv_bar_4(bot_year=2008, top_year=2020, country_list=countries):
 
     project_2 = {
         '$project':{
-            'cpv':'$CPV.cpv_division_description',
+            '_id':False,
+            'cpv':{ "$arrayElemAt": [ "$CPV", 0] },
             'avg':'$AVERAGE_VALUE'
         }
     }
 
-    #pipeline = [match,project,group_cpv_euro_avg,sort,limit,lookup,project_2]
+    project_3 = {
+        '$project':{
+            'cpv':'$cpv.cpv_division_description',
+            'avg':True
+        }
+    }
 
-    list_documents = []#list(eu.aggregate(pipeline))
+    pipeline = [match, project, group_cpv_euro_avg, sort, limit, lookup, project_2, project_3]
+
+    list_documents = list(eu.aggregate(pipeline))
 
     return list_documents
 
@@ -618,9 +626,46 @@ def ex8_cpv_hist(bot_year=2008, top_year=2020, country_list=countries, cpv='50')
     value_2 = contract count for thar particular bucket, (int)
     """
 
-    pipeline = []
+    project = {
+        '$project':{
+            '_id':False,
+            'CPV_DIVISION':{'$substr':['$CPV',0,2]},
+            'YEAR':True,
+            'ISO_COUNTRY_CODE':True,
+            'VALUE_EURO':True
+        }
+    }
 
-    list_documents = []
+    match = {
+        '$match': {
+                '$and': [{'YEAR': {'$gte': bot_year}}, {'YEAR': {'$lte': top_year}}],
+                'ISO_COUNTRY_CODE': {'$in': country_list},
+                'CPV_DIVISION': {'$eq': cpv}
+            }
+    }
+
+    bucket = {
+        '$bucket':{
+            'groupBy':'$VALUE_EURO',
+            'boundaries':[0,100000,200000,300000,400000,500000,600000,700000,800000,900000,1000000],
+            'default':'>1000000',
+            'output':{
+                'count':{'$sum':1}
+            }
+        }
+    }
+
+    project_2 = {
+        '$project':{
+            '_id':False,
+            'bucket':'$_id',
+            'count':True
+        }
+    }
+
+    pipeline = [project, match, bucket, project_2]
+
+    list_documents = list(eu.aggregate(pipeline))
 
     return list_documents
 
@@ -643,9 +688,52 @@ def ex9_cpv_bar_diff(bot_year=2008, top_year=2020, country_list=countries):
     value_3 = average 'EURO_AWARD' - 'VALUE_EURO' (float)
     """
 
-    pipeline = []
+    match = {
+        '$match': {
+                '$and': [{'YEAR': {'$gte': bot_year}}, {'YEAR': {'$lte': top_year}}],
+                'ISO_COUNTRY_CODE': {'$in': country_list}
+            }
+    }
 
-    list_documents = []
+    project = {
+        '$project':{
+            '_id':False,
+            'CPV_DIVISION':{'$substr':['$CPV',0,2]},
+            'AWARD_VALUE_EURO':True,
+            'VALUE_EURO':True,
+            'DT_DISPATCH_DATE':{'$dateFromString':{'dateString':'$DT_DISPATCH'}},
+            'DT_AWARD_DATE':{'$dateFromString':{'dateString':'$DT_AWARD'}},
+        }
+    }
+
+    project_2 = {
+        '$project':{
+            'CPV_DIVISION':True,
+            'TIME_DIFFERENCE':{'$subtract':['$DT_DISPATCH_DATE','$DT_AWARD_DATE']},
+            'VALUE_DIFFERENCE':{'$subtract':['$AWARD_VALUE_EURO','$VALUE_EURO']}
+        }
+    }
+
+    group_cpv_difference = {
+        '$group':{
+            '_id':'$CPV_DIVISION',
+            'AVG_TIME_DIFFERENCE':{'$avg':'$TIME_DIFFERENCE'},
+            'AVG_VALUE_DIFFERENCE':{'$avg':'$VALUE_DIFFERENCE'}
+        }
+    }
+
+    project_3 = {
+        '$project':{
+            '_id':False,
+            'cpv':'$_id',
+            'time_difference':'$AVG_TIME_DIFFERENCE',
+            'value_difference':'$AVG_VALUE_DIFFERENCE'
+        }
+    }
+
+    pipeline = [match, project, project_2, group_cpv_difference, project_3]
+
+    list_documents = list(eu.aggregate(pipeline))
 
     return list_documents
 
@@ -665,12 +753,93 @@ def ex10_country_box(bot_year=2008, top_year=2020, country_list=countries):
     avg_country_euro_avg_y_eu = average value of each countries ('ISO_COUNTRY_CODE') contracts average VALUE_EURO' with 'B_EU_FUNDS', (int)
     avg_country_euro_avg_n_eu = average value of each countries ('ISO_COUNTRY_CODE') contracts average 'VALUE_EURO' with out 'B_EU_FUNDS' (int)
     """
+    
+    match = {
+        '$match': {
+            '$and': [{'YEAR': {'$gte': bot_year}}, {'YEAR': {'$lte': top_year}}],
+            'ISO_COUNTRY_CODE': {'$in': country_list}
+        }
+    }
 
-    avg_country_euro_avg = None
-    avg_country_count = None
-    avg_country_offer_avg = None
-    avg_country_euro_avg_y_eu = None
-    avg_country_euro_avg_n_eu = None
+    group_country_euro_avg = {
+        '$group':{
+            '_id':'$ISO_COUNTRY_CODE',
+            'AVERAGE_VALUE':{'$avg':'$VALUE_EURO'}
+        }
+    }
+
+    group_country_euro_avg_2 = {
+        '$group':{
+            '_id':None,
+            'AVERAGE_COUNTRY_VALUE':{'$avg':'$AVERAGE_VALUE'}
+        }
+    }
+
+    pipeline_country_euro_avg = [match, group_country_euro_avg, group_country_euro_avg_2]
+
+    agg_country_euro_avg = list(eu.aggregate(pipeline_country_euro_avg))
+
+    group_country_count = {
+        '$group':{
+            '_id':'$ISO_COUNTRY_CODE',
+            'COUNT':{'$sum':1}
+        }
+    }
+
+    group_country_count_2 = {
+        '$group':{
+            '_id':None,
+            'AVERAGE_COUNT':{'$avg':'$COUNT'}
+        }
+    }
+
+    pipeline_country_count = [match, group_country_count, group_country_count_2]
+
+    agg_country_count = list(eu.aggregate(pipeline_country_count))
+
+    group_country_offer_avg = {
+        '$group':{
+            '_id':'$ISO_COUNTRY_CODE',
+            'AVERAGE_OFFERS':{'$avg':'$NUMBER_OFFERS'}
+        }
+    }
+
+    group_country_offer_avg_2 = {
+        '$group':{
+            '_id':None,
+            'AVERAGE_COUNTRY_OFFERS':{'$avg':'$AVERAGE_OFFERS'}
+        }
+    }
+
+    pipeline_country_offer_avg = [match, group_country_offer_avg, group_country_offer_avg_2]
+
+    agg_country_offer_avg = list(eu.aggregate(pipeline_country_offer_avg))
+
+    match_country_euro_avg_y_eu = {
+        '$match':{
+            'B_EU_FUNDS':'Y'
+        }
+    }
+
+    pipeline_country_euro_avg_y_eu = [match, match_country_euro_avg_y_eu, group_country_euro_avg, group_country_euro_avg_2]
+
+    agg_country_euro_avg_y_eu = list(eu.aggregate(pipeline_country_euro_avg_y_eu))
+
+    match_country_euro_avg_n_eu = {
+        '$match':{
+            'B_EU_FUNDS':'N'
+        }
+    }
+
+    pipeline_country_euro_avg_n_eu = [match, match_country_euro_avg_n_eu, group_country_euro_avg, group_country_euro_avg_2]
+
+    agg_country_euro_avg_n_eu = list(eu.aggregate(pipeline_country_euro_avg_n_eu))
+
+    avg_country_euro_avg = agg_country_euro_avg[0]['AVERAGE_COUNTRY_VALUE']
+    avg_country_count = agg_country_count[0]['AVERAGE_COUNT']
+    avg_country_offer_avg = agg_country_offer_avg[0]['AVERAGE_COUNTRY_OFFERS']
+    avg_country_euro_avg_y_eu = agg_country_euro_avg_y_eu[0]['AVERAGE_COUNTRY_VALUE']
+    avg_country_euro_avg_n_eu = agg_country_euro_avg_n_eu[0]['AVERAGE_COUNTRY_VALUE']
 
     return avg_country_euro_avg, avg_country_count, avg_country_offer_avg, avg_country_euro_avg_y_eu, avg_country_euro_avg_n_eu
 
