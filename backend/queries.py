@@ -908,9 +908,48 @@ def ex12_country_bar_1(bot_year=2008, top_year=2020, country_list=countries):
     value_2 = average 'VALUE_EURO' of each country ('ISO_COUNTRY_CODE') name, (float)
     """
 
-    pipeline = []
+    match = {
+        '$match': {
+            '$and': [{'YEAR': {'$gte': bot_year}}, {'YEAR': {'$lte': top_year}}],
+            'ISO_COUNTRY_CODE': {'$in': country_list}
+        }
+    }
 
-    list_documents = []
+    project = {
+        '$project':{
+            '_id':False,
+            'VALUE_EURO':True,
+            'ISO_COUNTRY_CODE':True
+        }
+    }
+
+    group = {
+        '$group':{
+            '_id':'$ISO_COUNTRY_CODE',
+            'AVERAGE':{'$avg':'$VALUE_EURO'}
+        }
+    }
+    sort = {
+        '$sort':{
+            'AVERAGE': -1
+        }
+    }
+
+    limit = {
+        '$limit':5
+    }
+
+    project_2 = {
+        '$project':{
+            '_id':False,
+            'country':'$_id',
+            'avg':'$AVERAGE'
+        }
+    }
+
+    pipeline = [match, project, group, sort, limit, project_2]
+
+    list_documents = list(eu.aggregate(pipeline))
 
     return list_documents
 
@@ -928,10 +967,47 @@ def ex13_country_bar_2(bot_year=2008, top_year=2020, country_list=countries):
     value_1 = Country ('ISO_COUNTRY_CODE') name, (string) (located in cpv collection as 'cpv_division_description')
     value_2 = average 'VALUE_EURO' of each country ('ISO_COUNTRY_CODE') name, (float)
     """
+    match = {
+        '$match': {
+            '$and': [{'YEAR': {'$gte': bot_year}}, {'YEAR': {'$lte': top_year}}],
+            'ISO_COUNTRY_CODE': {'$in': country_list}
+        }
+    }
 
-    pipeline = []
+    project = {
+        '$project':{
+            '_id':False,
+            'VALUE_EURO':True,
+            'ISO_COUNTRY_CODE':True
+        }
+    }
 
-    list_documents = []
+    group = {
+        '$group':{
+            '_id':'$ISO_COUNTRY_CODE',
+            'AVERAGE':{'$avg':'$VALUE_EURO'}
+        }
+    }
+    sort = {
+        '$sort':{
+            'AVERAGE': 1
+        }
+    }
+
+    limit = {
+        '$limit':5
+    }
+
+    project_2 = {
+        '$project':{
+            '_id':False,
+            'country':'$_id',
+            'avg':'$AVERAGE'
+        }
+    }
+    pipeline = [match, project, group, sort, limit, project_2]
+
+    list_documents = list(eu.aggregate(pipeline))
 
     return list_documents
 
@@ -950,9 +1026,40 @@ def ex14_country_map(bot_year=2008, top_year=2020, country_list=countries):
     value_2 = country in ISO-A2 format (string) (located in iso_codes collection)
     """
 
-    pipeline = []
+    match = {
+        '$match': {
+            '$and': [{'YEAR': {'$gte': bot_year}}, {'YEAR': {'$lte': top_year}}],
+            'ISO_COUNTRY_CODE': {'$in': country_list},
+            'B_EU_FUNDS': 'Y'
+        }
+    }
 
-    list_documents = []
+    project = {
+        '$project':{
+            '_id':False,
+            'VALUE_EURO':True,
+            'ISO_COUNTRY_CODE':True
+        }
+    }
+
+    group = {
+        '$group':{
+            '_id':'$ISO_COUNTRY_CODE',
+            'SUM':{'$sum':'$VALUE_EURO'}
+        }
+    }
+
+
+    project_2 = {
+        '$project':{
+            '_id':False,
+            'country':'$_id',
+            'sum':'$SUM'
+        }
+    }
+    pipeline = [match, project, group, project_2]
+
+    list_documents = list(eu.aggregate(pipeline))
 
     return list_documents
 
@@ -973,12 +1080,112 @@ def ex15_business_box(bot_year=2008, top_year=2020, country_list=countries):
     avg_business_euro_avg_y_eu = average value of each company ('CAE_NAME') contracts average VALUE_EURO' with 'B_EU_FUNDS', (int)
     avg_business_euro_avg_n_eu = average value of each company ('CAE_NAME') contracts average 'VALUE_EURO' with out 'B_EU_FUNDS' (int)
     """
+    match = {
+        '$match': {
+            '$and': [{'YEAR': {'$gte': bot_year}}, {'YEAR': {'$lte': top_year}}],
+            'ISO_COUNTRY_CODE': {'$in': country_list}
+        }
+    }
 
-    avg_business_euro_avg = None
-    avg_business_count = None
-    avg_business_offer_avg = None
-    avg_business_euro_avg_y_eu = None
-    avg_business_euro_avg_n_eu = None
+    project = {
+        '$project':{
+            '_id':False,
+            'VALUE_EURO':True,
+            'CAE_NAME':True,
+            'NUMBER_OFFERS':True,
+            'B_EU_FUNDS':True
+        }
+    }
+
+    group_cae_euro_avg = {
+        '$group':{
+            '_id':'$CAE_NAME',
+            'AVERAGE_VALUE':{'$avg':'$VALUE_EURO'}
+        }
+    }
+
+    group_cae_euro_avg_2 = {
+        '$group':{
+            '_id':None,
+            'AVERAGE_CAE_NAME':{'$avg':'$AVERAGE_VALUE'}
+        }
+    }
+
+    limit = {
+        '$limit':5
+    }
+
+    pipeline_cae_euro_avg = [match, project, limit, group_cae_euro_avg, group_cae_euro_avg_2]
+
+    agg_business_euro_avg = list(eu.aggregate(pipeline_cae_euro_avg))
+
+    avg_business_euro_avg = agg_business_euro_avg[0]['AVERAGE_CAE_NAME']
+    
+    group_cae_count = {
+        '$group':{
+            '_id':'$CAE_NAME',
+            'COUNT':{'$sum':1}
+        }
+    }
+
+    group_cae_count_2 = {
+        '$group':{
+            '_id':None,
+            'AVERAGE_COUNT':{'$avg':'$COUNT'}
+        }
+    }
+
+    pipeline_cae_count = [match, project, group_cae_count, group_cae_count_2]
+
+    agg_business_count = list(eu.aggregate(pipeline_cae_count))
+    
+    avg_business_count =  agg_business_count[0]['AVERAGE_COUNT']
+
+    group_cae_offer_avg = {
+        '$group':{
+            '_id':'$CAE_NAME',
+            'AVERAGE_OFFERS':{'$avg':'$NUMBER_OFFERS'}
+        }
+    }
+
+    group_cae_offer_avg_2 = {
+        '$group':{
+            '_id':None,
+            'AVERAGE_CAE_OFFERS':{'$avg':'$AVERAGE_OFFERS'}
+        }
+    }
+
+    pipeline_cae_offer_avg = [match, project, group_cae_offer_avg, group_cae_offer_avg_2]
+
+    agg_business_offer_avg = list(eu.aggregate(pipeline_cae_offer_avg))
+
+    
+    avg_business_offer_avg = agg_business_offer_avg[0]['AVERAGE_CAE_OFFERS']
+
+
+    match_cae_euro_avg_y_eu = {
+        '$match':{
+            'B_EU_FUNDS':'Y'
+        }
+    }
+
+    pipeline_cae_euro_avg_y_eu = [match, match_cae_euro_avg_y_eu, project, group_cae_euro_avg, group_cae_euro_avg_2]
+
+    agg_business_euro_avg_y_eu = list(eu.aggregate(pipeline_cae_euro_avg_y_eu))
+
+    avg_business_euro_avg_y_eu = agg_business_euro_avg_y_eu[0]['AVERAGE_CAE_NAME']
+
+    match_cae_euro_avg_n_eu = {
+        '$match':{
+            'B_EU_FUNDS':'N'
+        }
+    }
+
+    pipeline_cae_euro_avg_n_eu = [match, match_cae_euro_avg_n_eu, project, group_cae_euro_avg, group_cae_euro_avg_2]
+
+    agg_business_euro_avg_n_eu = list(eu.aggregate(pipeline_cae_euro_avg_n_eu))
+
+    avg_business_euro_avg_n_eu = agg_business_euro_avg_n_eu[0]['AVERAGE_CAE_NAME']
 
     return avg_business_euro_avg, avg_business_count, avg_business_offer_avg, avg_business_euro_avg_y_eu, avg_business_euro_avg_n_eu
 
@@ -995,8 +1202,48 @@ def ex16_business_bar_1(bot_year=2008, top_year=2020, country_list=countries):
     value_1 = company ('CAE_NAME') name, (string)
     value_2 = average 'VALUE_EURO' of each company ('CAE_NAME'), (float)
     """
+    match = {
+        '$match': {
+            '$and': [{'YEAR': {'$gte': bot_year}}, {'YEAR': {'$lte': top_year}}],
+            'ISO_COUNTRY_CODE': {'$in': country_list}
+        }
+    }
+    project = {
+        '$project':{
+            '_id':False,
+            'VALUE_EURO':True,
+            'CAE_NAME':True
+        }
+    }
 
-    list_documents = ex3_cpv_bar_1(bot_year=2008, top_year=2020, country_list=countries)
+    group = {
+        '$group':{
+            '_id':'$CAE_NAME',
+            'AVERAGE':{'$avg':'$VALUE_EURO'}
+        }
+    }
+    sort = {
+        '$sort':{
+            'AVERAGE': -1
+        }
+    }
+
+    limit = {
+        '$limit':5
+    }
+
+
+    project_2 = {
+        '$project':{
+            '_id':False,
+            'company':'$_id',
+            'avg':'$AVERAGE'
+        }
+    }
+
+    pipeline = [match, project, group, sort, limit, project_2]
+
+    list_documents = list(eu.aggregate(pipeline))
 
     return list_documents
 
@@ -1016,9 +1263,47 @@ def ex17_business_bar_2(bot_year=2008, top_year=2020, country_list=countries):
     value_2 = average 'VALUE_EURO' of each company ('CAE_NAME'), (float)
     """
 
-    pipeline = []
+    match = {
+        '$match': {
+            '$and': [{'YEAR': {'$gte': bot_year}}, {'YEAR': {'$lte': top_year}}],
+            'ISO_COUNTRY_CODE': {'$in': country_list}
+        }
+    }
+    project = {
+        '$project':{
+            '_id':False,
+            'VALUE_EURO':True,
+            'CAE_NAME':True
+        }
+    }
+    group = {
+        '$group':{
+            '_id':'$CAE_NAME',
+            'AVERAGE':{'$avg':'$VALUE_EURO'}
+        }
+    }
+    sort = {
+        '$sort':{
+            'AVERAGE': 1
+        }
+    }
 
-    list_documents = []
+    limit = {
+        '$limit':5
+    }
+
+
+    project_2 = {
+        '$project':{
+            '_id':False,
+            'company':'$_id',
+            'avg':'$AVERAGE'
+        }
+    }
+
+    pipeline = [match, project, group, sort, limit, project_2]
+
+    list_documents = list(eu.aggregate(pipeline))
 
     return list_documents
 
@@ -1036,9 +1321,46 @@ def ex18_business_treemap(bot_year=2008, top_year=2020, country_list=countries):
     value_2 = contract count of each company ('CAE_NAME'), (int)
     """
 
-    pipeline = []
+    match = {
+        '$match': {
+            '$and': [{'YEAR': {'$gte': bot_year}}, {'YEAR': {'$lte': top_year}}],
+            'ISO_COUNTRY_CODE': {'$in': country_list}
+        }
+    }
+    project = {
+        '$project':{
+            '_id':False,
+            'CAE_NAME':True
+        }
+    }
+    group = {
+        '$group':{
+            '_id':'$CAE_NAME',
+            'COUNT':{'$sum':1}
+        }
+    }
+    sort = {
+        '$sort':{
+            'COUNT': -1
+        }
+    }
 
-    list_documents = []
+    limit = {
+        '$limit':15
+    }
+
+
+    project_2 = {
+        '$project':{
+            '_id':False,
+            'company':'$_id',
+            'count':'$COUNT'
+        }
+    }
+
+    pipeline = [match, project, group, sort, limit, project_2]
+
+    list_documents = list(eu.aggregate(pipeline))
 
     return list_documents
 
