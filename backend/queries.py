@@ -865,10 +865,31 @@ def ex11_country_treemap(bot_year=2008, top_year=2020, country_list=countries):
     value_1 = Country ('ISO_COUNTRY_CODE') name, (string) (located in iso_codes collection')
     value_2 = contract count of each country, (int)
     """
+    match = {
+        '$match': {
+            '$and': [{'YEAR': {'$gte': bot_year}}, {'YEAR': {'$lte': top_year}}],
+            'ISO_COUNTRY_CODE': {'$in': country_list}
+        }
+    }
 
-    pipeline = []
+    group_country_count = {
+        '$group':{
+            '_id':'$ISO_COUNTRY_CODE',
+            'COUNT':{'$sum':1}
+        }
+    }
 
-    list_documents = []
+    project = {
+        '$project':{
+            'country':'$_id',
+            'count':'$COUNT',
+            '_id':False
+        }
+    }
+
+    pipeline = [match, group_country_count, project]
+
+    list_documents = list(eu.aggregate(pipeline))
 
     return list_documents
 
