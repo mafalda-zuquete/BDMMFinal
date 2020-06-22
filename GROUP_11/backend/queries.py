@@ -1505,16 +1505,16 @@ def insert_operation(document):
         In case pre computed tables were generated for the queries they should be recomputed with the new data.
     '''
 
-    countries = ['NO', 'HR', 'HU', 'CH', 'CZ', 'RO', 'LV', 'GR', 'UK', 'SI', 'LT',
-                'ES', 'FR', 'IE', 'SE', 'NL', 'PT', 'PL', 'DK', 'MK', 'DE', 'IT',
-                'BG', 'CY', 'AT', 'LU', 'BE', 'FI', 'EE', 'SK', 'MT', 'LI', 'IS']
+    countries = ['NO', 'HR', 'HU', 'CH', 'CZ', 'RO', 'LV', 'GR', 'GB', 'SI', 'LT',
+                 'ES', 'FR', 'IE', 'SE', 'NL', 'PT', 'PL', 'DK', 'MK', 'DE', 'IT',
+                 'BG', 'CY', 'AT', 'LU', 'BE', 'FI', 'EE', 'SK', 'MT', 'LI', 'IS', 'UK']
 
     insert = db.new.insert_many(document).inserted_ids
 
     match = {
         '$match':{
             '$and':[{'YEAR':{'$gte':2008}},{'YEAR':{'$lte':2020}}],
-            'VALUE_EURO':{'$lte':100000000},
+            'VALUE_EURO':{'$lt':100000000},
             'ISO_COUNTRY_CODE':{'$in':countries},
             '_id':{'$in':insert}
         }

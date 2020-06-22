@@ -8,7 +8,7 @@ def get_collection_count():
     return DB.eu.count()
 
 def get_collection_stats():
-    stats = DB.db.command("collstats", "eu")
+    stats = DB.db.command("collstats", "eu_2")
     return {k: stats[k] for k in ('count', 'nindexes', 'size')} 
 
 def insert_json(json_obj):
